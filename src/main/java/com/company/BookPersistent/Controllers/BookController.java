@@ -3,22 +3,26 @@ package com.company.BookPersistent.Controllers;
 import com.company.BookPersistent.Models.Book;
 import com.company.BookPersistent.Models.BookType;
 import com.company.BookPersistent.dataRepositories.BookRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 
 @Controller
 @RequestMapping(value = "/book")
 public class BookController {
 
+    @Autowired
+    private BookRepository bookRepository;
 
     // GET /book -> returns a JSON List of all the books
     @GetMapping
     public String getBooks(Model model) {
-        model.addAttribute("books", BookRepository.books);
+        model.addAttribute("books", bookRepository.findAll());
         return "bookList";
     }
 
@@ -39,7 +43,7 @@ public class BookController {
             return "newBooKForm";
         }
 
-        BookRepository.addBook(newBook);
+        bookRepository.save(newBook);
         model.addAttribute("bookName", newBook.getTitle());
         return "bookAdded";
     }
@@ -51,8 +55,21 @@ public class BookController {
 
     @PostMapping(value = "/search")
     public String searchBooks(Model model, @RequestParam String type, @RequestParam String keyword){
+        ArrayList<Book> matchingBooks = new ArrayList<>();
 
-        model.addAttribute("books", BookRepository.searchBook(type, keyword));
+        if (type.equals("author")) {
+            for (Book book : bookRepository.findAll()) {
+                if (book.getAuthor().toString().toLowerCase().contains(keyword.toLowerCase())) {
+                    matchingBooks.add(book);
+                }
+            }
+        }else if (type.equals("title")) {
+            for (Book book : bookRepository.findAll()) {
+                if(book.getTitle().toString().toLowerCase().contains(keyword.toLowerCase()));
+                matchingBooks.add(book);
+            }
+        }
+        model.addAttribute("books", matchingBooks);
         return "filterBooks";
     }
 }

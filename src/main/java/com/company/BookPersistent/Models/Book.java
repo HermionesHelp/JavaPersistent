@@ -1,20 +1,24 @@
 package com.company.BookPersistent.Models;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
 
+@Entity
 public class Book {
+
+    @Id
+    @GeneratedValue
+    private int id;
 
     @NotBlank(message = "Book must have a Title.")
     private String title;
-
     private String author;
-
     private String isbn;
-
     private BookType type;
 
     public Book (){
-
     }
 
     public Book(String title, String author, String isbn, BookType type) {
